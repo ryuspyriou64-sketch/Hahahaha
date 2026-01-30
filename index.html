@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Private Friends Gallery</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+*{box-sizing:border-box;margin:0;font-family:system-ui,-apple-system,BlinkMacSystemFont;}
+body{background:#0e0f13;color:#fff}
+
+/* top */
+header{padding:14px;display:flex;flex-direction:column;gap:10px;position:sticky;top:0;background:#0e0f13;z-index:10}
+header h1{font-size:1.2rem}
+#search{padding:12px;border-radius:10px;border:none;background:#1c1e26;color:#fff}
+#cats{display:flex;flex-wrap:wrap;gap:8px}
+.cat{padding:6px 12px;border-radius:999px;border:none;background:#232634;color:#fff;font-size:.75rem}
+.cat.active{background:#4f7cff}
+
+/* grid */
+#grid{padding:14px;display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px}
+.card{border-radius:14px;overflow:hidden;background:#111;position:relative;cursor:pointer}
+.card img{width:100%;height:100%;object-fit:cover;display:block;transition:.4s}
+.card:hover img{transform:scale(1.05)}
+.card span{position:absolute;left:0;right:0;bottom:0;padding:8px;font-size:.75rem;background:linear-gradient(transparent,rgba(0,0,0,.8))}
+
+/* lightbox */
+#lightbox{position:fixed;inset:0;background:rgba(0,0,0,.9);display:none;align-items:center;justify-content:center;flex-direction:column;z-index:99;padding:14px}
+#lightbox img{max-width:100%;max-height:80vh;border-radius:12px}
+#lightbox p{margin-top:8px;font-size:.8rem}
+#close{position:absolute;top:10px;right:14px;font-size:26px}
+
+/* admin */
+#admin{padding:14px;border-top:1px solid #222}
+#admin h2{font-size:1rem;margin-bottom:8px}
+#admin input,#admin button{width:100%;padding:12px;border-radius:8px;border:none;margin-bottom:8px}
+#admin button{background:#4f7cff;color:white;font-weight:600}
+.adminItem{background:#1c1e26;padding:8px;border-radius:8px;margin-bottom:6px;display:flex;justify-content:space-between;gap:10px;font-size:.7rem}
+.toggle{position:fixed;bottom:14px;right:14px;background:#4f7cff;border:none;color:white;padding:10px 14px;border-radius:999px;font-size:.7rem;z-index:20}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Friends Private Gallery</h1>
+  <input id="search" placeholder="Search...">
+  <div id="cats"></div>
+</header>
+
+<main id="grid"></main>
+
+<div id="lightbox">
+  <div id="close">✕</div>
+  <img id="lbImg">
+  <p id="lbTitle"></p>
+</div>
+
+<button class="toggle" id="toggleAdmin">Admin</button>
+
+<section id="admin" style="display:none">
+  <h2>Add photo</h2>
+  <input id="title" placeholder="Photo title">
+  <input id="category" placeholder="Category">
+  <input id="image" placeholder="Image URL (direct link)">
+  <button id="addBtn">Add</button>
+
+  <h2>Your photos</h2>
+  <div id="list"></div>
+</section>
+
+<script>
+const KEY="friends_gallery_data";
+
+const defaultPhotos=[
+ {id:crypto.randomUUID(),title:"Sunset",category:"Nature",image:"https://images.unsplash.com/photo-1500530855697-b586d89ba3ee"},
+ {id:crypto.randomUUID(),title:"Street",category:"City",image:"https://images.unsplash.com/photo-1508057198894-247b23fe5ade"}
+];
+
+let photos=JSON.parse(localStorage.getItem(KEY))||defaultPhotos;
+
+const grid=document.getElementById("grid");
+const cats=document.getElementById("cats");
+const search=document.getElementById("search");
+const lightbox=document.getElementById("lightbox");
+const lbImg=document.getElementById("lbImg");
+const lbTitle=document.getElementById("lbTitle");
+
+let activeCat="All";
+
+function save(){localStorage.setItem(KEY,JSON.stringify(photos));}
+
+function drawCats(){
+ const arr=["All",...new Set(photos.map(p=>p.category))];
+ cats.innerHTML="";
+ arr.forEach(c=>{
+   const b=document.createElement("button");
+   b.textContent=c;
+   b.className="cat"+(c===activeCat?" active":"");
+   b.onclick=()=>{activeCat=c;drawCats();drawGrid();}
+   cats.appendChild(b);
+ });
+}
+
+const io=new IntersectionObserver(es=>{
+ es.forEach(e=>{
+  if(e.isIntersecting){
+   const i=e.target;
+   i.src=i.dataset.src;
+   io.unobserve(i);
+  }
+ });
+},{rootMargin:"200px"});
+
+function drawGrid(){
+ const q=search.value.toLowerCase();
+ grid.innerHTML="";
+ photos.filter(p=>{
+   return (activeCat==="All"||p.category===activeCat)
+    && p.title.toLowerCase().includes(q);
+ }).forEach(p=>{
+   const d=document.createElement("div");
+   d.className="card";
+   const i=document.createElement("img");
+   i.dataset.src=p.image;
+   const s=document.createElement("span");
+   s.textContent=p.title;
+   d.append(i,s);
+   d.onclick=()=>open(p);
+   grid.appendChild(d);
+   io.observe(i);
+ });
+}
+
+function open(p){
+ lightbox.style.display="flex";
+ lbImg.src=p.image;
+ lbTitle.textContent=p.title;
+}
+
+document.getElementById("close").onclick=()=>lightbox.style.display="none";
+lightbox.onclick=e=>{if(e.target===lightbox)lightbox.style.display="none"};
+
+search.oninput=drawGrid;
+
+/* admin */
+const admin=document.getElementById("admin");
+const toggle=document.getElementById("toggleAdmin");
+const list=document.getElementById("list");
+
+toggle.onclick=()=>{
+ admin.style.display=admin.style.display==="none"?"block":"none";
+};
+
+function drawAdmin(){
+ list.innerHTML="";
+ photos.forEach(p=>{
+   const d=document.createElement("div");
+   d.className="adminItem";
+   d.innerHTML=`<div><b>${p.title}</b><br>${p.category}</div>
+   <button data-id="${p.id}">Delete</button>`;
+   d.querySelector("button").onclick=()=>{
+     photos=photos.filter(x=>x.id!==p.id);
+     save();
+     drawAdmin();
+     drawCats();
+     drawGrid();
+   };
+   list.appendChild(d);
+ });
+}
+
+document.getElementById("addBtn").onclick=()=>{
+ const t=title.value.trim();
+ const c=category.value.trim();
+ const i=image.value.trim();
+ if(!t||!c||!i)return alert("Fill all fields");
+ photos.unshift({id:crypto.randomUUID(),title:t,category:c,image:i});
+ save();
+ title.value=category.value=image.value="";
+ drawAdmin();
+ drawCats();
+ drawGrid();
+};
+
+drawCats();
+drawGrid();
+drawAdmin();
+</script>
+
+</body>
+</html>

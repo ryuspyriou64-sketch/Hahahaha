@@ -6,48 +6,286 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
-*{box-sizing:border-box;margin:0;font-family:system-ui,-apple-system,BlinkMacSystemFont;}
-body{background:#0e0f13;color:#fff}
+:root{
+  --bg:#0b0c10;
+  --panel:#14151b;
+  --soft:#1b1d25;
+  --accent:#ff8a00;
+  --text:#ffffff;
+  --muted:#9aa0aa;
+  --radius:14px;
+}
 
-/* top */
-header{padding:14px;display:flex;flex-direction:column;gap:10px;position:sticky;top:0;background:#0e0f13;z-index:10}
-header h1{font-size:1.2rem}
-#search{padding:12px;border-radius:10px;border:none;background:#1c1e26;color:#fff}
-#cats{display:flex;flex-wrap:wrap;gap:8px}
-.cat{padding:6px 12px;border-radius:999px;border:none;background:#232634;color:#fff;font-size:.75rem}
-.cat.active{background:#4f7cff}
+*{
+  box-sizing:border-box;
+  margin:0;
+  font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+}
 
-/* grid */
-#grid{padding:14px;display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px}
-.card{border-radius:14px;overflow:hidden;background:#111;position:relative;cursor:pointer}
-.card img{width:100%;height:100%;object-fit:cover;display:block;transition:.4s}
-.card:hover img{transform:scale(1.05)}
-.card span{position:absolute;left:0;right:0;bottom:0;padding:8px;font-size:.75rem;background:linear-gradient(transparent,rgba(0,0,0,.8))}
+body{
+  background:var(--bg);
+  color:var(--text);
+}
 
-/* lightbox */
-#lightbox{position:fixed;inset:0;background:rgba(0,0,0,.9);display:none;align-items:center;justify-content:center;flex-direction:column;z-index:99;padding:14px}
-#lightbox img{max-width:100%;max-height:80vh;border-radius:12px}
-#lightbox p{margin-top:8px;font-size:.8rem}
-#close{position:absolute;top:10px;right:14px;font-size:26px}
+/* ===== TOP BAR ===== */
 
-/* admin */
-#admin{padding:14px;border-top:1px solid #222}
-#admin h2{font-size:1rem;margin-bottom:8px}
-#admin input,#admin button{width:100%;padding:12px;border-radius:8px;border:none;margin-bottom:8px}
-#admin button{background:#4f7cff;color:white;font-weight:600}
-.adminItem{background:#1c1e26;padding:8px;border-radius:8px;margin-bottom:6px;display:flex;justify-content:space-between;gap:10px;font-size:.7rem}
-.toggle{position:fixed;bottom:14px;right:14px;background:#4f7cff;border:none;color:white;padding:10px 14px;border-radius:999px;font-size:.7rem;z-index:20}
+header{
+  position:sticky;
+  top:0;
+  z-index:20;
+  background:linear-gradient(180deg,#0c0d12 0%,#0b0c10 100%);
+  border-bottom:1px solid #1f212b;
+}
+
+.topbar{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  padding:14px 16px 10px;
+}
+
+.logo{
+  font-weight:800;
+  letter-spacing:.3px;
+  font-size:1.1rem;
+}
+
+.logo span{color:var(--accent)}
+
+.searchWrap{
+  flex:1;
+}
+
+#search{
+  width:100%;
+  padding:12px 14px;
+  border-radius:999px;
+  border:none;
+  outline:none;
+  background:var(--soft);
+  color:white;
+  font-size:.85rem;
+}
+
+#cats{
+  padding:8px 14px 14px;
+  display:flex;
+  gap:8px;
+  overflow-x:auto;
+}
+
+.cat{
+  padding:7px 14px;
+  border-radius:999px;
+  border:none;
+  background:#20222c;
+  color:#ddd;
+  font-size:.7rem;
+  cursor:pointer;
+  white-space:nowrap;
+}
+
+.cat.active{
+  background:var(--accent);
+  color:#000;
+  font-weight:700;
+}
+
+/* ===== GRID ===== */
+
+main{
+  padding:16px;
+}
+
+#grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(170px,1fr));
+  gap:18px;
+}
+
+/* ===== CARD ===== */
+
+.card{
+  background:var(--panel);
+  border-radius:var(--radius);
+  overflow:hidden;
+  cursor:pointer;
+  transition:.25s;
+  box-shadow:0 10px 30px rgba(0,0,0,.25);
+}
+
+.card:hover{
+  transform:translateY(-4px);
+  box-shadow:0 18px 40px rgba(0,0,0,.4);
+}
+
+.thumb{
+  position:relative;
+  aspect-ratio:16/10;
+  overflow:hidden;
+}
+
+.card img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+  transition:.35s ease;
+}
+
+.card:hover img{
+  transform:scale(1.07);
+}
+
+.duration{
+  position:absolute;
+  right:8px;
+  bottom:8px;
+  font-size:.6rem;
+  padding:4px 6px;
+  border-radius:6px;
+  background:rgba(0,0,0,.75);
+  backdrop-filter:blur(6px);
+}
+
+/* info */
+
+.info{
+  padding:10px 10px 12px;
+}
+
+.title{
+  font-size:.8rem;
+  font-weight:600;
+  line-height:1.2;
+  margin-bottom:6px;
+}
+
+.meta{
+  display:flex;
+  justify-content:space-between;
+  font-size:.65rem;
+  color:var(--muted);
+}
+
+/* ===== LIGHTBOX ===== */
+
+#lightbox{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.92);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  flex-direction:column;
+  z-index:99;
+  padding:16px;
+}
+
+#lightbox img{
+  max-width:100%;
+  max-height:80vh;
+  border-radius:16px;
+  box-shadow:0 20px 60px rgba(0,0,0,.6);
+}
+
+#lightbox p{
+  margin-top:10px;
+  font-size:.8rem;
+  color:#eee;
+}
+
+#close{
+  position:absolute;
+  top:14px;
+  right:18px;
+  font-size:26px;
+  cursor:pointer;
+}
+
+/* ===== ADMIN ===== */
+
+.toggle{
+  position:fixed;
+  bottom:18px;
+  right:18px;
+  background:var(--accent);
+  border:none;
+  color:#000;
+  padding:10px 16px;
+  border-radius:999px;
+  font-size:.7rem;
+  font-weight:700;
+  z-index:30;
+  cursor:pointer;
+}
+
+#admin{
+  padding:18px;
+  background:#0e1016;
+  border-top:1px solid #1f212b;
+}
+
+#admin h2{
+  font-size:.9rem;
+  margin:12px 0 8px;
+}
+
+#admin input,
+#admin button{
+  width:100%;
+  padding:12px;
+  border-radius:10px;
+  border:none;
+  margin-bottom:8px;
+  background:var(--soft);
+  color:white;
+}
+
+#admin button{
+  background:var(--accent);
+  color:#000;
+  font-weight:700;
+  cursor:pointer;
+}
+
+.adminItem{
+  background:var(--panel);
+  padding:10px;
+  border-radius:10px;
+  margin-bottom:8px;
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  font-size:.65rem;
+  align-items:center;
+}
+
+.adminItem button{
+  padding:6px 10px;
+  border-radius:8px;
+  border:none;
+  background:#2b2e39;
+  color:white;
+  cursor:pointer;
+}
 </style>
 </head>
 <body>
 
 <header>
-  <h1>Friends Private Gallery</h1>
-  <input id="search" placeholder="Search...">
+  <div class="topbar">
+    <div class="logo">Friends<span>Hub</span></div>
+    <div class="searchWrap">
+      <input id="search" placeholder="Search videos...">
+    </div>
+  </div>
   <div id="cats"></div>
 </header>
 
-<main id="grid"></main>
+<main>
+  <section id="grid"></section>
+</main>
 
 <div id="lightbox">
   <div id="close">✕</div>
@@ -59,12 +297,12 @@ header h1{font-size:1.2rem}
 
 <section id="admin" style="display:none">
   <h2>Add photo</h2>
-  <input id="title" placeholder="Photo title">
+  <input id="title" placeholder="Title">
   <input id="category" placeholder="Category">
   <input id="image" placeholder="Image URL (direct link)">
-  <button id="addBtn">Add</button>
+  <button id="addBtn">Add item</button>
 
-  <h2>Your photos</h2>
+  <h2>Your items</h2>
   <div id="list"></div>
 </section>
 
@@ -72,8 +310,8 @@ header h1{font-size:1.2rem}
 const KEY="friends_gallery_data";
 
 const defaultPhotos=[
- {id:crypto.randomUUID(),title:"Sunset",category:"Nature",image:"https://images.unsplash.com/photo-1500530855697-b586d89ba3ee"},
- {id:crypto.randomUUID(),title:"Street",category:"City",image:"https://images.unsplash.com/photo-1508057198894-247b23fe5ade"}
+ {id:crypto.randomUUID(),title:"Golden Sunset",category:"Nature",image:"https://images.unsplash.com/photo-1500530855697-b586d89ba3ee"},
+ {id:crypto.randomUUID(),title:"Street Lights",category:"City",image:"https://images.unsplash.com/photo-1508057198894-247b23fe5ade"}
 ];
 
 let photos=JSON.parse(localStorage.getItem(KEY))||defaultPhotos;
@@ -87,99 +325,158 @@ const lbTitle=document.getElementById("lbTitle");
 
 let activeCat="All";
 
-function save(){localStorage.setItem(KEY,JSON.stringify(photos));}
+function save(){
+  localStorage.setItem(KEY,JSON.stringify(photos));
+}
 
 function drawCats(){
- const arr=["All",...new Set(photos.map(p=>p.category))];
- cats.innerHTML="";
- arr.forEach(c=>{
-   const b=document.createElement("button");
-   b.textContent=c;
-   b.className="cat"+(c===activeCat?" active":"");
-   b.onclick=()=>{activeCat=c;drawCats();drawGrid();}
-   cats.appendChild(b);
- });
+  const arr=["All",...new Set(photos.map(p=>p.category))];
+  cats.innerHTML="";
+  arr.forEach(c=>{
+    const b=document.createElement("button");
+    b.textContent=c;
+    b.className="cat"+(c===activeCat?" active":"");
+    b.onclick=()=>{
+      activeCat=c;
+      drawCats();
+      drawGrid();
+    };
+    cats.appendChild(b);
+  });
 }
 
-const io=new IntersectionObserver(es=>{
- es.forEach(e=>{
-  if(e.isIntersecting){
-   const i=e.target;
-   i.src=i.dataset.src;
-   io.unobserve(i);
-  }
- });
+const io=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      const i=e.target;
+      i.src=i.dataset.src;
+      io.unobserve(i);
+    }
+  });
 },{rootMargin:"200px"});
 
+function fakeDuration(){
+  const m=Math.floor(Math.random()*12)+1;
+  const s=Math.floor(Math.random()*60).toString().padStart(2,"0");
+  return m+":"+s;
+}
+
+function fakeViews(){
+  return (Math.random()*900+20).toFixed(0)+"K";
+}
+
 function drawGrid(){
- const q=search.value.toLowerCase();
- grid.innerHTML="";
- photos.filter(p=>{
-   return (activeCat==="All"||p.category===activeCat)
-    && p.title.toLowerCase().includes(q);
- }).forEach(p=>{
-   const d=document.createElement("div");
-   d.className="card";
-   const i=document.createElement("img");
-   i.dataset.src=p.image;
-   const s=document.createElement("span");
-   s.textContent=p.title;
-   d.append(i,s);
-   d.onclick=()=>open(p);
-   grid.appendChild(d);
-   io.observe(i);
- });
+  const q=search.value.toLowerCase();
+  grid.innerHTML="";
+
+  photos
+    .filter(p=>{
+      return (activeCat==="All"||p.category===activeCat)
+      && p.title.toLowerCase().includes(q);
+    })
+    .forEach(p=>{
+
+      const card=document.createElement("div");
+      card.className="card";
+
+      const thumb=document.createElement("div");
+      thumb.className="thumb";
+
+      const img=document.createElement("img");
+      img.dataset.src=p.image;
+
+      const dur=document.createElement("div");
+      dur.className="duration";
+      dur.textContent=fakeDuration();
+
+      thumb.append(img,dur);
+
+      const info=document.createElement("div");
+      info.className="info";
+
+      const t=document.createElement("div");
+      t.className="title";
+      t.textContent=p.title;
+
+      const meta=document.createElement("div");
+      meta.className="meta";
+      meta.innerHTML=`<span>${p.category}</span><span>${fakeViews()}</span>`;
+
+      info.append(t,meta);
+
+      card.append(thumb,info);
+
+      card.onclick=()=>openItem(p);
+
+      grid.appendChild(card);
+      io.observe(img);
+    });
 }
 
-function open(p){
- lightbox.style.display="flex";
- lbImg.src=p.image;
- lbTitle.textContent=p.title;
+function openItem(p){
+  lightbox.style.display="flex";
+  lbImg.src=p.image;
+  lbTitle.textContent=p.title+" · "+p.category;
 }
 
-document.getElementById("close").onclick=()=>lightbox.style.display="none";
-lightbox.onclick=e=>{if(e.target===lightbox)lightbox.style.display="none"};
+document.getElementById("close").onclick=()=>{
+  lightbox.style.display="none";
+};
+
+lightbox.onclick=e=>{
+  if(e.target===lightbox) lightbox.style.display="none";
+};
 
 search.oninput=drawGrid;
 
 /* admin */
+
 const admin=document.getElementById("admin");
 const toggle=document.getElementById("toggleAdmin");
 const list=document.getElementById("list");
 
 toggle.onclick=()=>{
- admin.style.display=admin.style.display==="none"?"block":"none";
+  admin.style.display=admin.style.display==="none"?"block":"none";
 };
 
 function drawAdmin(){
- list.innerHTML="";
- photos.forEach(p=>{
-   const d=document.createElement("div");
-   d.className="adminItem";
-   d.innerHTML=`<div><b>${p.title}</b><br>${p.category}</div>
-   <button data-id="${p.id}">Delete</button>`;
-   d.querySelector("button").onclick=()=>{
-     photos=photos.filter(x=>x.id!==p.id);
-     save();
-     drawAdmin();
-     drawCats();
-     drawGrid();
-   };
-   list.appendChild(d);
- });
+  list.innerHTML="";
+  photos.forEach(p=>{
+    const d=document.createElement("div");
+    d.className="adminItem";
+    d.innerHTML=`<div><b>${p.title}</b><br>${p.category}</div>`;
+    const btn=document.createElement("button");
+    btn.textContent="Delete";
+    btn.onclick=()=>{
+      photos=photos.filter(x=>x.id!==p.id);
+      save();
+      drawAdmin();
+      drawCats();
+      drawGrid();
+    };
+    d.appendChild(btn);
+    list.appendChild(d);
+  });
 }
 
 document.getElementById("addBtn").onclick=()=>{
- const t=title.value.trim();
- const c=category.value.trim();
- const i=image.value.trim();
- if(!t||!c||!i)return alert("Fill all fields");
- photos.unshift({id:crypto.randomUUID(),title:t,category:c,image:i});
- save();
- title.value=category.value=image.value="";
- drawAdmin();
- drawCats();
- drawGrid();
+  const t=title.value.trim();
+  const c=category.value.trim();
+  const i=image.value.trim();
+  if(!t||!c||!i) return alert("Fill all fields");
+
+  photos.unshift({
+    id:crypto.randomUUID(),
+    title:t,
+    category:c,
+    image:i
+  });
+
+  save();
+  title.value=category.value=image.value="";
+  drawAdmin();
+  drawCats();
+  drawGrid();
 };
 
 drawCats();
